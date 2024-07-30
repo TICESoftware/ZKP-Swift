@@ -1,0 +1,43 @@
+name: Tests on pull requests and release candidates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      
+concurrency: 
+  group: ${{ github.head_ref || github.ref }} # Cancel old runs if they have not finished yet
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: self-hosted
+    steps:
+      - name: Setup shell
+        run: eval "$(/opt/homebrew/bin/brew shellenv)"
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Brew bundle
+        run: brew bundle --no-lock
+      - name: Run swiftlint
+        run:
+          swiftlint lint --reporter html > swiftlint.html
+      - name: Archive swiftlint report
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: swiftlint-${{ github.sha }}
+          path: swiftlint.html
+
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Setup shell
+        run: eval "$(/opt/homebrew/bin/brew shellenv)"
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Brew bundle
+        run: brew bundle --no-lock
+      - name: Run tests
+        run: swift test
