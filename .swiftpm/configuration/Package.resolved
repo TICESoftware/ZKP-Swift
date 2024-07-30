@@ -1,0 +1,42 @@
+{
+  "originHash" : "befc650cea7c25748a42002c74590642fb0ad01b509ea72c1ed4176a7f6bfb97",
+  "pins" : [
+    {
+      "identity" : "asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leif-ibsen/ASN1",
+      "state" : {
+        "revision" : "4b4e82513e3b4d51a7573972fd7123222dd3a3bd",
+        "version" : "2.6.0"
+      }
+    },
+    {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leif-ibsen/BigInt",
+      "state" : {
+        "revision" : "bf55e4ce076a5e2dde0db13d9b03d820cfad420d",
+        "version" : "1.19.0"
+      }
+    },
+    {
+      "identity" : "digest",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leif-ibsen/Digest",
+      "state" : {
+        "revision" : "05f079878ec5fb05c7d9c94f35dbc4f5ec054d54",
+        "version" : "1.6.0"
+      }
+    },
+    {
+      "identity" : "swiftecc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leif-ibsen/SwiftECC.git",
+      "state" : {
+        "revision" : "0efa7eed9eeedb93e6d42bc4a18a40ef5c1ef2d0",
+        "version" : "5.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}
