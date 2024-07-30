@@ -37,9 +37,16 @@ BBCTka3p
 
 let challengePublicKeyPEM = """
 -----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEnXtC2D/1YWRQMUvN7Q2dhhA18s8
-OReuOkJELEjEwGZ63z5t9rGJoxkxz1/PoQq63y2J+TK8CCT4YEXsP/xgSw==
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1yu+OWNhRwFODLm/loVSpUdRZC2C
+2aiB1+Et7Y300OsId7Mq9Z3ecplLGRaFAoPCkPylDysY0Hqp2VerlX7wgA==
 -----END PUBLIC KEY-----
+"""
+
+let challengePrivateKeyPEM = """
+-----BEGIN PRIVATE KEY-----
+MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCBKcjFocoaViPkin2Tm
+5XPAXPR5zYG7rA7px6i0CJ1ICA==
+-----END PRIVATE KEY-----
 """
 
 final class ZKP_SwiftTests: XCTestCase {
@@ -119,7 +126,7 @@ final class ZKP_SwiftTests: XCTestCase {
         XCTAssertNotEqual(jwtParts[2], zkpJwtParts[2])
         
         // There is a test on kotlin side that verifies that this answer is a valid zkp proof
-        XCTAssertEqual(zkpJwtParts[2], "AjeYqOQOhFykHYcZaZ2Xa-M7CjM1XVXFYZ9pPXQBWdLvAhZoBLWgQeceUpGxRk9R92SRHkXPteF_ZJ_bFxEWvVCL")
+        XCTAssertEqual(zkpJwtParts[2], "AjeYqOQOhFykHYcZaZ2Xa-M7CjM1XVXFYZ9pPXQBWdLvA5xBdYSr9aI_8ak0cosZj5qW-Bc4RUeeVN7BqUoggzJ5")
     }
     
     func testCreateChallengeRequestSDJWT() throws {
