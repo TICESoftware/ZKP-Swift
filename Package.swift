@@ -10,7 +10,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "ZKP-Swift",
-            targets: ["ZKP-Swift"]),
+            targets: ["ZKP-Swift"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/leif-ibsen/SwiftECC.git", from: "5.3.0"),
@@ -19,11 +20,12 @@ let package = Package(
         .target(
             name: "ZKP-Swift",
             dependencies: [
-                .product(name: "SwiftECC", package: "SwiftECC")
+                .product(name: "SwiftECC", package: "SwiftECC"),
             ]
         ),
         .testTarget(
             name: "ZKP-SwiftTests",
-            dependencies: ["ZKP-Swift"]),
+            dependencies: ["ZKP-Swift"]
+        ),
     ]
 )

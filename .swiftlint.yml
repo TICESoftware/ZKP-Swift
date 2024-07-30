@@ -1,0 +1,20 @@
+disabled_rules:
+  - function_body_length
+  - type_body_length
+  - trailing_whitespace
+  - identifier_name
+  - line_length
+  - file_length
+  - comment_spacing
+  - trailing_comma
+  - nesting
+  - switch_case_alignment
+
+cyclomatic_complexity:
+  ignores_case_statements: true
+
+strict: false
+
+excluded:
+  - .swiftpm
+  - .build

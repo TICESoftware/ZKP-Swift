@@ -1,0 +1,11 @@
+#format options
+--ifdef outdent
+--patternlet inline
+--trimwhitespace nonblank-lines
+--typeblanklines preserve
+--wraparguments preserve
+--wrapcollections before-first
+# file options
+--exclude **/Generated,vendor
+# rules
+--disable sortedImports,trailingCommas,trailingClosures,unusedArguments,wrapMultilineStatementBraces
