@@ -1,4 +1,5 @@
 import Foundation
+import SwiftECC
 
 public extension Data {
     var base64URLEncoded: String {
@@ -17,25 +18,31 @@ public extension Data {
 
 public extension Data {
     
-    // Function to decode a Base64 URL encoded string
     init?(base64URLEncoded: String) {
-        // Step 1: Replace URL-safe characters back to Base64 characters
         var base64String = base64URLEncoded
         base64String = base64String.replacingOccurrences(of: "-", with: "+")
         base64String = base64String.replacingOccurrences(of: "_", with: "/")
         
-        // Step 2: Add padding if necessary
         let remainder = base64String.count % 4
         if remainder > 0 {
             base64String = base64String.padding(toLength: base64String.count + 4 - remainder, withPad: "=", startingAt: 0)
         }
         
-        // Step 3: Decode the Base64 string to Data
-        guard let data = Data(base64Encoded: base64String) else {
-            return nil
-        }
-        
-        self = data
+        self.init(base64Encoded: base64String)
     }
 }
 
+internal func decodeConcatSignature(signature: String) -> Signature {
+    precondition(signature.count % 2 == 0)
+    let signatureData = Data(base64URLEncoded: signature)!
+    
+    let r = signatureData.subdata(in: 0..<signatureData.count/2)
+    let s = signatureData.subdata(in: signatureData.count/2..<signatureData.count)
+    
+    return Signature(r: Bytes(r), s: Bytes(s))
+}
+
+internal struct Signature {
+    let r: Bytes
+    let s: Bytes
+}
