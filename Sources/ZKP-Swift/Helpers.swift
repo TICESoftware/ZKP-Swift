@@ -31,9 +31,9 @@ public extension Data {
 }
 
 func decodeConcatSignature(signature: String) -> Signature {
-    precondition(signature.count % 2 == 0)
     let signatureData = Data(base64URLEncoded: signature)!
-
+    precondition(signatureData.count % 2 == 0)
+    
     let r = signatureData.subdata(in: 0 ..< signatureData.count / 2)
     let s = signatureData.subdata(in: signatureData.count / 2 ..< signatureData.count)
 

@@ -25,13 +25,7 @@ class ZKPProverSDJWT {
         return "\(parts[0]).\(parts[1]).\(encodedZKPSignature)"
     }
     
-    private struct SignatureRelatedSDJWTParts {
-        let digest: Bytes
-        let r: Bytes
-        let s: Bytes
-    }
-    
-    private func parseSDJWT(jwt: String) throws -> SignatureRelatedSDJWTParts {
+    private func parseSDJWT(jwt: String) throws -> SignatureRelatedParts {
         let parts = jwt.split(separator: ".")
         
         guard parts.count == 3 else {
@@ -48,6 +42,6 @@ class ZKPProverSDJWT {
         let signaturePart = String(parts[2])
         let signature = decodeConcatSignature(signature: signaturePart)
         
-        return SignatureRelatedSDJWTParts(digest: Bytes(digest), r: signature.r, s: signature.s)
+        return SignatureRelatedParts(digest: Bytes(digest), r: signature.r, s: signature.s)
     }
 }

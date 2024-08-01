@@ -23,3 +23,9 @@ public struct ECDSASignature {
     public let r: Bytes
     public let s: Bytes
 }
+
+internal struct SignatureRelatedParts {
+    let digest: Bytes
+    let r: Bytes
+    let s: Bytes
+}
