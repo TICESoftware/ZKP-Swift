@@ -4,51 +4,6 @@ import SwiftECC
 import XCTest
 @testable import ZKP_Swift
 
-let privateKeyPEM = """
------BEGIN PRIVATE KEY-----
-MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgb4UzEf6QFxSVF9yz
-TA3+WFFacPJfp2iXgd+A2ZEzPJqhRANCAASwW742XU1e8LxEz8heJcu7wxUDtfuZ
-dPcme9vm4fEr/klnGLTCrMZDXUqNm9QXwW1z+gYDNZ0+ZPAYSDlkPb3e
------END PRIVATE KEY-----
-"""
-
-let publicKeyPEM = """
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsFu+Nl1NXvC8RM/IXiXLu8MVA7X7
-mXT3Jnvb5uHxK/5JZxi0wqzGQ11KjZvUF8Ftc/oGAzWdPmTwGEg5ZD293g==
------END PUBLIC KEY-----
-"""
-
-let ephPublicKeyPEM = """
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETh2gvUk5JJmz+381XiN6gVZrAu4R
-cqKw0CDsXMccimgga3wvNwjaMTFE34NFROJurbCOEtna6gSMFwQQk5Gt6Q==
------END PUBLIC KEY-----
-"""
-
-let ephPrivateKeyPEM = """
------BEGIN PRIVATE KEY-----
-MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgandHRq1kbZypYtUN
-CbiSWKbtgDpb44KNGEhyAU/FbVKgCgYIKoZIzj0DAQehRANCAAROHaC9STkkmbP7
-fzVeI3qBVmsC7hFyorDQIOxcxxyKaCBrfC83CNoxMUTfg0VE4m6tsI4S2drqBIwX
-BBCTka3p
------END PRIVATE KEY-----
-"""
-
-let challengePublicKeyPEM = """
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1yu+OWNhRwFODLm/loVSpUdRZC2C
-2aiB1+Et7Y300OsId7Mq9Z3ecplLGRaFAoPCkPylDysY0Hqp2VerlX7wgA==
------END PUBLIC KEY-----
-"""
-
-let challengePrivateKeyPEM = """
------BEGIN PRIVATE KEY-----
-MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCBKcjFocoaViPkin2Tm
-5XPAXPR5zYG7rA7px6i0CJ1ICA==
------END PRIVATE KEY-----
-"""
-
 final class SDJWTTests: XCTestCase {
     
     let issuerPublicKey = try! ECPublicKey(pem: publicKeyPEM)
