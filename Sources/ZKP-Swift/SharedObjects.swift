@@ -1,18 +1,18 @@
-enum ZKPProverError: Error {
+public enum ZKPProverError: Error {
     case invalidHeaderAndPayload
     case invalidJWT
 }
 
-enum ZKPVerifierError: Error {
+public enum ZKPVerifierError: Error {
     case invalidBase64URLEncoding
 }
 
-struct ChallengeRequestData {
+public struct ChallengeRequestData {
     let digest: String
     let r: String
 }
 
-enum VpTokenFormat {
+public enum VpTokenFormat {
     case sdJWT
     case msoMdoc
 }
