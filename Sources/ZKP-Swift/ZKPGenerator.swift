@@ -11,7 +11,7 @@ struct ZKPGenerator {
         self.secp256r1Spec = domain
     }
     
-    func replaceSignatureWithZKP(ephemeralPublicKey: ECPublicKey, digest: Bytes, signatureR: Bytes, signatureS: Bytes) throws -> Signature {
+    func zeroKnowledgeProofFromSignature(ephemeralPublicKey: ECPublicKey, digest: Bytes, signatureR: Bytes, signatureS: Bytes) throws -> Signature {
         let s = BInt(magnitude: signatureS)
         let sInv = s.modInverse(secp256r1Spec.p)
         

@@ -19,7 +19,7 @@ class ZKPProverSDJWT {
     
     func answerChallenge(ephemeralPublicKey: ECPublicKey, jwt: String) throws -> String {
         let parsedSDJWT = try parseSDJWT(jwt: jwt)
-        let zkpSignature = try zkpGenerator.replaceSignatureWithZKP(ephemeralPublicKey: ephemeralPublicKey, digest: parsedSDJWT.digest, signatureR: parsedSDJWT.r, signatureS: parsedSDJWT.s)
+        let zkpSignature = try zkpGenerator.zeroKnowledgeProofFromSignature(ephemeralPublicKey: ephemeralPublicKey, digest: parsedSDJWT.digest, signatureR: parsedSDJWT.r, signatureS: parsedSDJWT.s)
         let encodedZKPSignature = zkpSignature.base64URLEncoded()
         let parts = jwt.split(separator: ".")
         return "\(parts[0]).\(parts[1]).\(encodedZKPSignature)"

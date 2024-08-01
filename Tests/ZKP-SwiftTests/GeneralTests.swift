@@ -83,7 +83,7 @@ final class SDJWTTests: XCTestCase {
 
         let signature = issuerPrivateKey.sign(msg: sha256Bytes, deterministic: true)
 
-        let zkpSignature = try generator.replaceSignatureWithZKP(ephemeralPublicKey: ephPubKey, digest: sha256Bytes, signatureR: signature.r, signatureS: signature.s)
+        let zkpSignature = try generator.zeroKnowledgeProofFromSignature(ephemeralPublicKey: ephPubKey, digest: sha256Bytes, signatureR: signature.r, signatureS: signature.s)
         let base64EncodedSignature = zkpSignature.base64URLEncoded()
 
         XCTAssertEqual(base64EncodedSignature, "Am1Q-qb0kPPSZu8SyY44FK0EgBcFMPb0C6LCsIl6qjSbA45_2zadsTAEl8HDWIJWMK-EJNyV95_YL9V2rXuGj4y1")
