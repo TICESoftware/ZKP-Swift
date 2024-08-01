@@ -49,10 +49,15 @@ MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCBKcjFocoaViPkin2Tm
 -----END PRIVATE KEY-----
 """
 
-final class GeneralTests: XCTestCase {
+final class SDJWTTests: XCTestCase {
+    
+    let issuerPublicKey = try! ECPublicKey(pem: publicKeyPEM)
+    let issuerPrivateKey = try! ECPrivateKey(pem: privateKeyPEM)
+    
     func testWholeFlow() throws {
-        let issuerPublicKey = try ECPublicKey(pem: publicKeyPEM)
-        let prover = ZKPProver(issuerPublicKey: issuerPublicKey)
+        let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
+        let proverSDJWT = ZKPProverSDJWT(zkpGenerator: generator)
+        let prover = ZKPProver(zkpProverSDJWT: proverSDJWT)
         let verifier = ZKPVerifier(issuerPublicKey: issuerPublicKey)
 
         let someJwt = "eyJhbGciOiJFUzI1NiJ9.U29tZSByYXcgbWVzc2FnZQ.Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-bsP1BQIKKixBJe6CQpAt0dizITTHQnLujDNFAMixcT-w"
@@ -68,23 +73,17 @@ final class GeneralTests: XCTestCase {
     }
 
     func testDeterministicSignature() throws {
-        let issuerPrivateKey = try ECPrivateKey(pem: privateKeyPEM)
-        let issuerPublicKey = try ECPublicKey(pem: publicKeyPEM)
-        let prover = ZKPProver(issuerPublicKey: issuerPublicKey)
+        let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
 
         let ephPubKey = try ECPublicKey(pem: ephPublicKeyPEM)
 
         let payloadData = Data("Some raw string".utf8)
         let sha256 = SHA256.hash(data: payloadData)
         let sha256Bytes = Bytes(sha256)
-        let encoded = Base64.encode(sha256Bytes)
-        print(encoded)
 
         let signature = issuerPrivateKey.sign(msg: sha256Bytes, deterministic: true)
-        let signatureBase64UrlEncoded = Base64.encode(signature.r + signature.s, -1)
-        print(signatureBase64UrlEncoded)
 
-        let (R, S) = try prover.answerChallenge(ephemeralPublicKey: ephPubKey, digest: sha256Bytes, signatureR: signature.r, signatureS: signature.s)
+        let (R, S) = try generator.replaceSignatureWithZKP(ephemeralPublicKey: ephPubKey, digest: sha256Bytes, signatureR: signature.r, signatureS: signature.s)
         let base64EncodedSignature = Base64.encode(R + S, -1)
 
         XCTAssertEqual(base64EncodedSignature, "Am1Q+qb0kPPSZu8SyY44FK0EgBcFMPb0C6LCsIl6qjSbA45/2zadsTAEl8HDWIJWMK+EJNyV95/YL9V2rXuGj4y1")
@@ -109,8 +108,9 @@ final class GeneralTests: XCTestCase {
     }
 
     func testAnswerChallengeFromKotlin() throws {
-        let issuerPublicKey = try ECPublicKey(pem: publicKeyPEM)
-        let prover = ZKPProver(issuerPublicKey: issuerPublicKey)
+        let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
+        let proverSDJWT = ZKPProverSDJWT(zkpGenerator: generator)
+        let prover = ZKPProver(zkpProverSDJWT: proverSDJWT)
 
         let ephPubKey = try ECPublicKey(pem: challengePublicKeyPEM)
         let jwtFromKotlin = "eyJhbGciOiJFUzI1NiJ9.U29tZSByYXcgbWVzc2FnZQ.Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-bsP1BQIKKixBJe6CQpAt0dizITTHQnLujDNFAMixcT-w"
@@ -128,8 +128,9 @@ final class GeneralTests: XCTestCase {
     }
 
     func testCreateChallengeRequestSDJWT() throws {
-        let issuerPublicKey = try ECPublicKey(pem: publicKeyPEM)
-        let prover = ZKPProver(issuerPublicKey: issuerPublicKey)
+        let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
+        let proverSDJWT = ZKPProverSDJWT(zkpGenerator: generator)
+        let prover = ZKPProver(zkpProverSDJWT: proverSDJWT)
 
         let jwt = "eyJhbGciOiJFUzI1NiJ9.U29tZSByYXcgbWVzc2FnZQ.Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-bsP1BQIKKixBJe6CQpAt0dizITTHQnLujDNFAMixcT-w"
         let challengeRequestData = try prover.createChallengeRequest(vpTokenFormat: .sdJWT, data: jwt)
