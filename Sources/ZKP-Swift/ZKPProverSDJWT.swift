@@ -19,19 +19,19 @@ class ZKPProverSDJWT {
     
     func answerChallenge(ephemeralPublicKey: ECPublicKey, jwt: String) throws -> String {
         let parsedSDJWT = try parseSDJWT(jwt: jwt)
-        let (R, S) = try zkpGenerator.replaceSignatureWithZKP(ephemeralPublicKey: ephemeralPublicKey, digest: parsedSDJWT.digest, signatureR: parsedSDJWT.r, signatureS: parsedSDJWT.s)
-        let signature = Data(R + S).base64URLEncoded
+        let zkpSignature = try zkpGenerator.replaceSignatureWithZKP(ephemeralPublicKey: ephemeralPublicKey, digest: parsedSDJWT.digest, signatureR: parsedSDJWT.r, signatureS: parsedSDJWT.s)
+        let encodedZKPSignature = zkpSignature.base64URLEncoded()
         let parts = jwt.split(separator: ".")
-        return "\(parts[0]).\(parts[1]).\(signature)"
+        return "\(parts[0]).\(parts[1]).\(encodedZKPSignature)"
     }
     
-    private struct ParsedSDJWT {
+    private struct SignatureRelatedSDJWTParts {
         let digest: Bytes
         let r: Bytes
         let s: Bytes
     }
     
-    private func parseSDJWT(jwt: String) throws -> ParsedSDJWT {
+    private func parseSDJWT(jwt: String) throws -> SignatureRelatedSDJWTParts {
         let parts = jwt.split(separator: ".")
         
         guard parts.count == 3 else {
@@ -48,6 +48,6 @@ class ZKPProverSDJWT {
         let signaturePart = String(parts[2])
         let signature = decodeConcatSignature(signature: signaturePart)
         
-        return ParsedSDJWT(digest: Bytes(digest), r: signature.r, s: signature.s)
+        return SignatureRelatedSDJWTParts(digest: Bytes(digest), r: signature.r, s: signature.s)
     }
 }

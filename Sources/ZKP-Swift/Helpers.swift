@@ -43,4 +43,8 @@ func decodeConcatSignature(signature: String) -> Signature {
 struct Signature {
     let r: Bytes
     let s: Bytes
+    
+    func base64URLEncoded() -> String {
+        Data(r + s).base64URLEncoded
+    }
 }

@@ -1,3 +1,5 @@
+import SwiftECC
+
 public enum ZKPProverError: Error {
     case invalidHeaderAndPayload
     case invalidJWT
@@ -8,11 +10,16 @@ public enum ZKPVerifierError: Error {
 }
 
 public struct ChallengeRequestData {
-    let digest: String
-    let r: String
+    public let digest: String
+    public let r: String
 }
 
 public enum VpTokenFormat {
     case sdJWT
     case msoMdoc
+}
+
+public struct ECDSASignature {
+    public let r: Bytes
+    public let s: Bytes
 }

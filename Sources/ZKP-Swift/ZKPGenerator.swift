@@ -11,7 +11,7 @@ struct ZKPGenerator {
         self.secp256r1Spec = domain
     }
     
-    func replaceSignatureWithZKP(ephemeralPublicKey: ECPublicKey, digest: Bytes, signatureR: Bytes, signatureS: Bytes) throws -> (Bytes, Bytes) {
+    func replaceSignatureWithZKP(ephemeralPublicKey: ECPublicKey, digest: Bytes, signatureR: Bytes, signatureS: Bytes) throws -> Signature {
         let s = BInt(magnitude: signatureS)
         let sInv = s.modInverse(secp256r1Spec.p)
         
@@ -27,6 +27,6 @@ struct ZKPGenerator {
         let ephemeralPublicKeyPoint = ephemeralPublicKey.w
         let S_unencoded = try secp256r1Spec.multiplyPoint(ephemeralPublicKeyPoint, sInv)
         let S = try secp256r1Spec.encodePoint(S_unencoded, true)
-        return (R, S)
+        return Signature(r: R, s: S)
     }
 }

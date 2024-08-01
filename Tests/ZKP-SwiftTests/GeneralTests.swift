@@ -83,10 +83,10 @@ final class SDJWTTests: XCTestCase {
 
         let signature = issuerPrivateKey.sign(msg: sha256Bytes, deterministic: true)
 
-        let (R, S) = try generator.replaceSignatureWithZKP(ephemeralPublicKey: ephPubKey, digest: sha256Bytes, signatureR: signature.r, signatureS: signature.s)
-        let base64EncodedSignature = Base64.encode(R + S, -1)
+        let zkpSignature = try generator.replaceSignatureWithZKP(ephemeralPublicKey: ephPubKey, digest: sha256Bytes, signatureR: signature.r, signatureS: signature.s)
+        let base64EncodedSignature = zkpSignature.base64URLEncoded()
 
-        XCTAssertEqual(base64EncodedSignature, "Am1Q+qb0kPPSZu8SyY44FK0EgBcFMPb0C6LCsIl6qjSbA45/2zadsTAEl8HDWIJWMK+EJNyV95/YL9V2rXuGj4y1")
+        XCTAssertEqual(base64EncodedSignature, "Am1Q-qb0kPPSZu8SyY44FK0EgBcFMPb0C6LCsIl6qjSbA45_2zadsTAEl8HDWIJWMK-EJNyV95_YL9V2rXuGj4y1")
     }
 
     func testKotlinSignature() throws {
