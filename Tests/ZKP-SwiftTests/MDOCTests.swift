@@ -16,7 +16,7 @@ final class MDOCTests: XCTestCase {
         let prover = ZKPProverMDOC(zkpGenerator: generator)
         let verifier = ZKPVerifier(issuerPublicKey: issuerPublicKey)
         
-        let cbor = try CBOR(base64URLEncoded: cbor_sample_wallet_ui)
+        let cbor = try CBOR(base64URLEncoded: cbor_sample_device_response)
         let deviceResponse = DeviceResponse(cbor: cbor)!
         let issuerAuth = deviceResponse.documents![0].issuerSigned.issuerAuth
         
