@@ -1,5 +1,6 @@
 import Foundation
 import SwiftECC
+import SwiftCBOR
 
 public extension Data {
     var base64URLEncoded: String {
@@ -30,10 +31,14 @@ public extension Data {
     }
 }
 
-func decodeConcatSignature(signature: String) -> Signature {
-    precondition(signature.count % 2 == 0)
-    let signatureData = Data(base64URLEncoded: signature)!
-
+func decodeConcatSignature(signature: String) throws -> Signature {
+    guard let signatureData = Data(base64URLEncoded: signature) else {
+        throw ZKPError.invalidBase64URLEncoding
+    }
+    guard signatureData.count % 2 == 0 else {
+        throw ZKPError.invalidSignatureLength
+    }
+    
     let r = signatureData.subdata(in: 0 ..< signatureData.count / 2)
     let s = signatureData.subdata(in: signatureData.count / 2 ..< signatureData.count)
 
@@ -43,4 +48,22 @@ func decodeConcatSignature(signature: String) -> Signature {
 struct Signature {
     let r: Bytes
     let s: Bytes
+    
+    func base64URLEncoded() -> String {
+        Data(r + s).base64URLEncoded
+    }
+}
+
+public extension CBOR {
+    init(base64URLEncoded: String) throws {
+        guard let data = Data(base64URLEncoded: base64URLEncoded) else {
+            throw ZKPError.invalidBase64URLEncoding
+        }
+        
+        guard let cbor = try CBOR.decode([UInt8](data)) else {
+            throw ZKPError.invalidCBOR
+        }
+        
+        self = cbor
+    }
 }

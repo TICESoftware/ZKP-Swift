@@ -15,12 +15,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/leif-ibsen/SwiftECC.git", from: "5.3.0"),
+        .package(url: "https://github.com/eu-digital-identity-wallet/eudi-lib-ios-iso18013-data-model", from: "0.2.0")
     ],
     targets: [
         .target(
             name: "ZKP-Swift",
             dependencies: [
                 .product(name: "SwiftECC", package: "SwiftECC"),
+                .product(name: "MdocDataModel18013", package: "eudi-lib-ios-iso18013-data-model"),
             ]
         ),
         .testTarget(
