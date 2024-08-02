@@ -31,9 +31,13 @@ public extension Data {
     }
 }
 
-func decodeConcatSignature(signature: String) -> Signature {
-    let signatureData = Data(base64URLEncoded: signature)!
-    precondition(signatureData.count % 2 == 0)
+func decodeConcatSignature(signature: String) throws -> Signature {
+    guard let signatureData = Data(base64URLEncoded: signature) else {
+        throw ZKPError.invalidBase64URLEncoding
+    }
+    guard signatureData.count % 2 == 0 else {
+        throw ZKPError.invalidSignatureLength
+    }
     
     let r = signatureData.subdata(in: 0 ..< signatureData.count / 2)
     let s = signatureData.subdata(in: signatureData.count / 2 ..< signatureData.count)
@@ -53,11 +57,11 @@ struct Signature {
 public extension CBOR {
     init(base64URLEncoded: String) throws {
         guard let data = Data(base64URLEncoded: base64URLEncoded) else {
-            throw ZKPProverMDOCError.notBase64Decodable
+            throw ZKPError.invalidBase64URLEncoding
         }
         
         guard let cbor = try CBOR.decode([UInt8](data)) else {
-            throw ZKPProverMDOCError.invalidCBOR
+            throw ZKPError.invalidCBOR
         }
         
         self = cbor

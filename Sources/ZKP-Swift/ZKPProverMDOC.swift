@@ -3,13 +3,6 @@ import MdocDataModel18013
 import SwiftECC
 import SwiftCBOR
 
-enum ZKPProverMDOCError: Error {
-    case notBase64Decodable
-    case invalidCBOR
-    case invalidCBORDocument
-    case unsupportedVerificationAlgorithm(Cose.VerifyAlgorithm)
-}
-
 class ZKPProverMDOC {
     
     let zkpGenerator: ZKPGenerator
@@ -20,14 +13,14 @@ class ZKPProverMDOC {
     
     public func createChallengeRequestData(mdoc: String) throws -> ChallengeRequestData {
         guard let data = Data(base64URLEncoded: mdoc) else {
-            throw ZKPProverMDOCError.notBase64Decodable
+            throw ZKPError.notBase64Decodable
         }
         
         guard let cbor = try CBOR.decode([UInt8](data)) else {
-            throw ZKPProverMDOCError.invalidCBOR
+            throw ZKPError.invalidCBOR
         }
         
-        guard let deviceResponse = DeviceResponse(cbor: cbor) else { throw ZKPProverMDOCError.invalidCBORDocument }
+        guard let deviceResponse = DeviceResponse(cbor: cbor) else { throw ZKPError.invalidCBORDocument }
         let issuerAuth = deviceResponse.documents![0].issuerSigned.issuerAuth
         
         return try createChallengeRequestData(issuerAuth: issuerAuth)
@@ -35,7 +28,7 @@ class ZKPProverMDOC {
     
     public func createChallengeRequestData(issuerAuth: IssuerAuth) throws -> ChallengeRequestData {
         guard issuerAuth.verifyAlgorithm == .es256 else {
-            throw ZKPProverMDOCError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)
+            throw ZKPError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)
         }
         
         let signatureRelatedParts = issuerAuth.signatureRelatedParts
@@ -48,7 +41,7 @@ class ZKPProverMDOC {
     
     public func answerChallenge(ephemeralPublicKey: ECPublicKey, issuerAuth: IssuerAuth) throws -> IssuerAuth {
         guard issuerAuth.verifyAlgorithm == .es256 else {
-            throw ZKPProverMDOCError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)
+            throw ZKPError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)
         }
         
         let signatureRelatedParts = issuerAuth.signatureRelatedParts

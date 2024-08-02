@@ -18,7 +18,7 @@ class ZKPVerifier {
         guard let digest = Data(base64URLEncoded: requestData.digest),
               let rData = Data(base64URLEncoded: requestData.r)
         else {
-            throw ZKPVerifierError.invalidBase64URLEncoding
+            throw ZKPError.invalidBase64URLEncoding
         }
 
         let z = BInt(magnitude: Bytes(digest))
@@ -38,7 +38,7 @@ class ZKPVerifier {
 
     func verifyChallengeSDJWT(jwt: String, key: ECPrivateKey) throws -> Bool {
         let parts = jwt.split(separator: ".")
-        let signature = decodeConcatSignature(signature: String(parts[2]))
+        let signature = try decodeConcatSignature(signature: String(parts[2]))
         let decodedR = try domain.decodePoint(signature.r)
         let ourS = try domain.multiplyPoint(decodedR, key.s)
         let decodedS = try domain.decodePoint(signature.s)

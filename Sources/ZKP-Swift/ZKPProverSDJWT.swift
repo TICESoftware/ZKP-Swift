@@ -29,18 +29,18 @@ class ZKPProverSDJWT {
         let parts = jwt.split(separator: ".")
         
         guard parts.count == 3 else {
-            throw ZKPProverError.invalidJWT
+            throw ZKPError.invalidJWT
         }
         
         let headerAndPayload = "\(parts[0]).\(parts[1])"
         
         guard let headerAndPayloadData = headerAndPayload.data(using: .utf8) else {
-            throw ZKPProverError.invalidHeaderAndPayload
+            throw ZKPError.invalidHeaderAndPayload
         }
         
         let digest = SHA256.hash(data: headerAndPayloadData)
         let signaturePart = String(parts[2])
-        let signature = decodeConcatSignature(signature: signaturePart)
+        let signature = try decodeConcatSignature(signature: signaturePart)
         
         return SignatureRelatedParts(digest: Bytes(digest), r: signature.r, s: signature.s)
     }

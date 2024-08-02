@@ -1,13 +1,15 @@
 import SwiftECC
 import MdocDataModel18013
 
-public enum ZKPProverError: Error {
+public enum ZKPError: Error {
+    case invalidBase64URLEncoding
     case invalidHeaderAndPayload
     case invalidJWT
-}
-
-public enum ZKPVerifierError: Error {
-    case invalidBase64URLEncoding
+    case notBase64Decodable
+    case invalidCBOR
+    case invalidCBORDocument
+    case unsupportedVerificationAlgorithm(Cose.VerifyAlgorithm)
+    case invalidSignatureLength
 }
 
 public struct ChallengeRequestData {
