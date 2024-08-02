@@ -11,30 +11,28 @@ final class SDJWTTests: XCTestCase {
     
     func testWholeFlow() throws {
         let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
-        let proverSDJWT = ZKPProverSDJWT(zkpGenerator: generator)
-        let prover = ZKPProver(zkpProverSDJWT: proverSDJWT)
+        let prover = ZKPProverSDJWT(zkpGenerator: generator)
         let verifier = ZKPVerifier(issuerPublicKey: issuerPublicKey)
 
         let someJwt = "eyJhbGciOiJFUzI1NiJ9.U29tZSByYXcgbWVzc2FnZQ.Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-bsP1BQIKKixBJe6CQpAt0dizITTHQnLujDNFAMixcT-w"
-        let request = try prover.createChallengeRequest(vpTokenFormat: .sdJWT, data: someJwt)
+        let request = try prover.createChallengeRequestData(jwt: someJwt)
 
         let (challengePublicKey, challengePrivateKey) = try verifier.createChallenge(requestData: request)
 
-        let answer = try prover.answerChallenge(ephemeralPublicKey: challengePublicKey, vpTokenFormat: .sdJWT, data: someJwt)
+        let answer = try prover.answerChallenge(ephemeralPublicKey: challengePublicKey, jwt: someJwt)
 
-        let result = try verifier.verifyChallenge(vpTokenFormat: .sdJWT, data: answer, key: challengePrivateKey)
+        let result = try verifier.verifyChallengeSDJWT(jwt: answer, key: challengePrivateKey)
 
         XCTAssertTrue(result)
     }
 
     func testAnswerChallengeFromKotlin() throws {
         let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
-        let proverSDJWT = ZKPProverSDJWT(zkpGenerator: generator)
-        let prover = ZKPProver(zkpProverSDJWT: proverSDJWT)
+        let prover = ZKPProverSDJWT(zkpGenerator: generator)
 
         let ephPubKey = try ECPublicKey(pem: challengePublicKeyPEM)
         let jwtFromKotlin = "eyJhbGciOiJFUzI1NiJ9.U29tZSByYXcgbWVzc2FnZQ.Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-bsP1BQIKKixBJe6CQpAt0dizITTHQnLujDNFAMixcT-w"
-        let zkpJwt = try prover.answerChallenge(ephemeralPublicKey: ephPubKey, vpTokenFormat: .sdJWT, data: jwtFromKotlin)
+        let zkpJwt = try prover.answerChallenge(ephemeralPublicKey: ephPubKey, jwt: jwtFromKotlin)
 
         let jwtParts = jwtFromKotlin.split(separator: ".")
         let zkpJwtParts = zkpJwt.split(separator: ".")
@@ -49,11 +47,10 @@ final class SDJWTTests: XCTestCase {
 
     func testCreateChallengeRequestSDJWT() throws {
         let generator = ZKPGenerator(issuerPublicKey: issuerPublicKey, domain: .instance(curve: .EC256r1))
-        let proverSDJWT = ZKPProverSDJWT(zkpGenerator: generator)
-        let prover = ZKPProver(zkpProverSDJWT: proverSDJWT)
+        let prover = ZKPProverSDJWT(zkpGenerator: generator)
 
         let jwt = "eyJhbGciOiJFUzI1NiJ9.U29tZSByYXcgbWVzc2FnZQ.Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-bsP1BQIKKixBJe6CQpAt0dizITTHQnLujDNFAMixcT-w"
-        let challengeRequestData = try prover.createChallengeRequest(vpTokenFormat: .sdJWT, data: jwt)
+        let challengeRequestData = try prover.createChallengeRequestData(jwt: jwt)
 
         XCTAssertEqual(challengeRequestData.digest, "nLT2lz465dAnKWRSfjsImppvJ4gun1Rzy2_RPYH4fec")
         XCTAssertEqual(challengeRequestData.r, "Zh2GRwhm36gpV1TZc_j5E74P4taykE0CxKICGPxVP-Y")

@@ -4,7 +4,9 @@ import SwiftECC
 import SwiftCBOR
 
 enum ZKPProverMDOCError: Error {
+    case notBase64Decodable
     case invalidCBOR
+    case invalidCBORDocument
     case unsupportedVerificationAlgorithm(Cose.VerifyAlgorithm)
 }
 
@@ -17,15 +19,26 @@ class ZKPProverMDOC {
     }
     
     public func createChallengeRequestData(mdoc: String) throws -> ChallengeRequestData {
-        let cbor = mdoc.toCBOR()
-        
-        guard let document = Document(cbor: cbor) else { throw ZKPProverMDOCError.invalidCBOR }
-        
-        guard document.issuerSigned.issuerAuth.verifyAlgorithm == .es256 else {
-            throw ZKPProverMDOCError.unsupportedVerificationAlgorithm(document.issuerSigned.issuerAuth.verifyAlgorithm)
+        guard let data = Data(base64URLEncoded: mdoc) else {
+            throw ZKPProverMDOCError.notBase64Decodable
         }
         
-        let signatureRelatedParts = document.issuerSigned.issuerAuth.signatureRelatedParts
+        guard let cbor = try CBOR.decode([UInt8](data)) else {
+            throw ZKPProverMDOCError.invalidCBOR
+        }
+        
+        guard let deviceResponse = DeviceResponse(cbor: cbor) else { throw ZKPProverMDOCError.invalidCBORDocument }
+        let issuerAuth = deviceResponse.documents![0].issuerSigned.issuerAuth
+        
+        return try createChallengeRequestData(issuerAuth: issuerAuth)
+    }
+    
+    public func createChallengeRequestData(issuerAuth: IssuerAuth) throws -> ChallengeRequestData {
+        guard issuerAuth.verifyAlgorithm == .es256 else {
+            throw ZKPProverMDOCError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)
+        }
+        
+        let signatureRelatedParts = issuerAuth.signatureRelatedParts
         
         let digest = Data(signatureRelatedParts.digest).base64URLEncoded
         let r = Data(signatureRelatedParts.r).base64URLEncoded
@@ -33,43 +46,25 @@ class ZKPProverMDOC {
         return ChallengeRequestData(digest: digest, r: r)
     }
     
-    public func answerChallenge(ephemeralPublicKey: ECPublicKey, document: Document) throws -> Document {
-        guard document.issuerSigned.issuerAuth.verifyAlgorithm == .es256 else {
-            throw ZKPProverMDOCError.unsupportedVerificationAlgorithm(document.issuerSigned.issuerAuth.verifyAlgorithm)
+    public func answerChallenge(ephemeralPublicKey: ECPublicKey, issuerAuth: IssuerAuth) throws -> IssuerAuth {
+        guard issuerAuth.verifyAlgorithm == .es256 else {
+            throw ZKPProverMDOCError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)
         }
         
-        let signatureRelatedParts = document.issuerSigned.issuerAuth.signatureRelatedParts
+        let signatureRelatedParts = issuerAuth.signatureRelatedParts
         
         let zkpSignature = try zkpGenerator.zeroKnowledgeProofFromSignature(ephemeralPublicKey: ephemeralPublicKey, digest: signatureRelatedParts.digest, signatureR: signatureRelatedParts.r, signatureS: signatureRelatedParts.s)
         
         let zkpSignatureData = Data(zkpSignature.r + zkpSignature.s)
         
         let newIssuerAuth = IssuerAuth(
-            mso: document.issuerSigned.issuerAuth.mso,
-            msoRawData: document.issuerSigned.issuerAuth.msoRawData,
-            verifyAlgorithm: document.issuerSigned.issuerAuth.verifyAlgorithm,
+            mso: issuerAuth.mso,
+            msoRawData: issuerAuth.msoRawData,
+            verifyAlgorithm: issuerAuth.verifyAlgorithm,
             signature: zkpSignatureData,
-            iaca: document.issuerSigned.issuerAuth.iaca
+            iaca: issuerAuth.iaca
         )
-        let newIssuerSigned = IssuerSigned(
-            issuerNameSpaces: document.issuerSigned.issuerNameSpaces,
-            issuerAuth: newIssuerAuth
-        )
-        let newDocument = Document(docType: document.docType, issuerSigned: newIssuerSigned, deviceSigned: document.deviceSigned, errors: document.errors)
-        
-        return newDocument
-    }
-    
-    public func answerChallenge(ephemeralPublicKey: ECPublicKey, mdoc: String) throws -> String {
-        let cbor = mdoc.toCBOR()
-        
-        guard let document = Document(cbor: cbor) else { throw ZKPProverMDOCError.invalidCBOR }
-        
-        let newDocument = try answerChallenge(ephemeralPublicKey: ephemeralPublicKey, document: document)
-        
-        let newCBOR = newDocument.toCBOR(options: CBOROptions())
-        let newDocumentData = newCBOR.asData()
-        return String(decoding: newDocumentData, as: UTF8.self)
+        return newIssuerAuth
     }
 }
 

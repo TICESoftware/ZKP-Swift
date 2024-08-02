@@ -1,5 +1,6 @@
 import Foundation
 import SwiftECC
+import SwiftCBOR
 
 public extension Data {
     var base64URLEncoded: String {
@@ -46,5 +47,19 @@ struct Signature {
     
     func base64URLEncoded() -> String {
         Data(r + s).base64URLEncoded
+    }
+}
+
+public extension CBOR {
+    init(base64URLEncoded: String) throws {
+        guard let data = Data(base64URLEncoded: base64URLEncoded) else {
+            throw ZKPProverMDOCError.notBase64Decodable
+        }
+        
+        guard let cbor = try CBOR.decode([UInt8](data)) else {
+            throw ZKPProverMDOCError.invalidCBOR
+        }
+        
+        self = cbor
     }
 }

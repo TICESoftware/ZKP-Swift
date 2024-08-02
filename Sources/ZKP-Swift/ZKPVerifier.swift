@@ -2,14 +2,16 @@ import BigInt
 import CryptoKit
 import Foundation
 import SwiftECC
+import MdocDataModel18013
+import SwiftCBOR
 
 class ZKPVerifier {
     let issuerPublicKeyECPoint: Point
-    let secp256r1Spec: Domain
+    let domain: Domain
 
-    init(issuerPublicKey: ECPublicKey) {
-        secp256r1Spec = Domain.instance(curve: .EC256r1)
+    init(issuerPublicKey: ECPublicKey, domain: Domain = Domain.instance(curve: .EC256r1)) {
         issuerPublicKeyECPoint = issuerPublicKey.w
+        self.domain = domain
     }
 
     func createChallenge(requestData: ChallengeRequestData) throws -> (ECPublicKey, ECPrivateKey) {
@@ -22,31 +24,36 @@ class ZKPVerifier {
         let z = BInt(magnitude: Bytes(digest))
         let r = BInt(magnitude: Bytes(rData))
 
-        let Gnew_1 = try secp256r1Spec.multiplyPoint(issuerPublicKeyECPoint, r)
-        let Gnew_2 = try secp256r1Spec.multiplyPoint(secp256r1Spec.g, z)
-        let Gnew = try secp256r1Spec.addPoints(Gnew_1, Gnew_2)
+        let Gnew_1 = try domain.multiplyPoint(issuerPublicKeyECPoint, r)
+        let Gnew_2 = try domain.multiplyPoint(domain.g, z)
+        let Gnew = try domain.addPoints(Gnew_1, Gnew_2)
 
-        let ephemeralPrivateKeyScalar = (secp256r1Spec.order - BInt.ONE).randomLessThan() + BInt.ONE
-        let ephemeralPrivateKey = try ECPrivateKey(domain: secp256r1Spec, s: ephemeralPrivateKeyScalar)
-        let ephemeralPublicKeyPoint = try secp256r1Spec.multiplyPoint(Gnew, ephemeralPrivateKeyScalar)
-        let ephemeralPublicKey = try ECPublicKey(domain: secp256r1Spec, w: ephemeralPublicKeyPoint)
+        let ephemeralPrivateKeyScalar = (domain.order - BInt.ONE).randomLessThan() + BInt.ONE
+        let ephemeralPrivateKey = try ECPrivateKey(domain: domain, s: ephemeralPrivateKeyScalar)
+        let ephemeralPublicKeyPoint = try domain.multiplyPoint(Gnew, ephemeralPrivateKeyScalar)
+        let ephemeralPublicKey = try ECPublicKey(domain: domain, w: ephemeralPublicKeyPoint)
 
         return (ephemeralPublicKey, ephemeralPrivateKey)
-    }
-
-    func verifyChallenge(vpTokenFormat: VpTokenFormat, data: String, key: ECPrivateKey) throws -> Bool {
-        return switch vpTokenFormat {
-        case .sdJWT: try verifyChallengeSDJWT(jwt: data, key: key)
-        case .msoMdoc: fatalError("not yet implemented")
-        }
     }
 
     func verifyChallengeSDJWT(jwt: String, key: ECPrivateKey) throws -> Bool {
         let parts = jwt.split(separator: ".")
         let signature = decodeConcatSignature(signature: String(parts[2]))
-        let decodedR = try secp256r1Spec.decodePoint(signature.r)
-        let ourS = try secp256r1Spec.multiplyPoint(decodedR, key.s)
-        let decodedS = try secp256r1Spec.decodePoint(signature.s)
+        let decodedR = try domain.decodePoint(signature.r)
+        let ourS = try domain.multiplyPoint(decodedR, key.s)
+        let decodedS = try domain.decodePoint(signature.s)
+        return ourS == decodedS
+    }
+    
+    func verifyChallengeMDOC(issuerAuth: IssuerAuth, key: ECPrivateKey) throws -> Bool {
+        let signatureData = issuerAuth.signature
+        let r = signatureData.subdata(in: 0 ..< signatureData.count / 2)
+        let s = signatureData.subdata(in: signatureData.count / 2 ..< signatureData.count)
+        let signature = Signature(r: Bytes(r), s: Bytes(s))
+        
+        let decodedR = try domain.decodePoint(signature.r)
+        let ourS = try domain.multiplyPoint(decodedR, key.s)
+        let decodedS = try domain.decodePoint(signature.s)
         return ourS == decodedS
     }
 }

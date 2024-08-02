@@ -10,7 +10,7 @@ class ZKPProverSDJWT {
         self.zkpGenerator = zkpGenerator
     }
     
-    func createChallengeRequestData(jwt: String) throws -> ChallengeRequestData {
+    func createChallengeRequestData(jwt: JWT) throws -> ChallengeRequestData {
         let parsedSDJWT = try parseSDJWT(jwt: jwt)
         let digest = Data(parsedSDJWT.digest).base64URLEncoded
         let r = Data(parsedSDJWT.r).base64URLEncoded
