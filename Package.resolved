@@ -1,5 +1,5 @@
 {
-  "originHash" : "298fd200da70ad7e79e0abbe54f4150cb69c189c3c6b5e5d1d6e8efe3c5c139c",
+  "originHash" : "2d2bfe4689fcfeb05050a8ddd4da8a829c328706d0e8874261e38c7734d91ac6",
   "pins" : [
     {
       "identity" : "asn1",
@@ -26,6 +26,42 @@
       "state" : {
         "revision" : "05f079878ec5fb05c7d9c94f35dbc4f5ec054d54",
         "version" : "1.6.0"
+      }
+    },
+    {
+      "identity" : "eudi-lib-ios-iso18013-data-model",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/eu-digital-identity-wallet/eudi-lib-ios-iso18013-data-model",
+      "state" : {
+        "revision" : "907e5dbdb58fcaf4916507a8fcfff7a79cbd0efd",
+        "version" : "0.3.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "3d2dc41a01f9e49d84f0a3925fb858bed64f702d",
+        "version" : "1.1.2"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
+        "version" : "1.6.1"
+      }
+    },
+    {
+      "identity" : "swiftcbor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/niscy-eudiw/SwiftCBOR.git",
+      "state" : {
+        "revision" : "310dbc3975a5653237fed304d88a6dd59d04dd30",
+        "version" : "0.5.7"
       }
     },
     {

@@ -30,4 +30,24 @@ final class MDOCTests: XCTestCase {
         
         XCTAssertTrue(result)
     }
+    
+    func testLoadIssuerAuthFromKotlin() throws {
+        let cbor = try CBOR(base64URLEncoded: documentWithZKPFromKotlin)
+        let document = Document(cbor: cbor)!
+        let issuerAuthWithZKP = document.issuerSigned.issuerAuth
+        
+        let kotlinChallengePrivateKeyPEM = """
+        -----BEGIN PRIVATE KEY-----
+        MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCqy0kOpeA+h+SZ4AhO
+        /IteRgaYGvyVeAKBG2KK1eRUAg==
+        -----END PRIVATE KEY-----
+        """
+        
+        let challengePrivateKey = try ECPrivateKey(pem: kotlinChallengePrivateKeyPEM)
+        
+        let verifier = ZKPVerifier(issuerPublicKey: issuerPublicKey)
+        let result = try verifier.verifyChallengeMDOC(issuerAuth: issuerAuthWithZKP, key: challengePrivateKey)
+        
+        XCTAssertTrue(result)
+    }
 }

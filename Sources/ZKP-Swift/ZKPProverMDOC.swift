@@ -20,10 +20,11 @@ class ZKPProverMDOC {
             throw ZKPError.invalidCBOR
         }
         
-        guard let deviceResponse = DeviceResponse(cbor: cbor) else { throw ZKPError.invalidCBORDocument }
-        let issuerAuth = deviceResponse.documents![0].issuerSigned.issuerAuth
+        guard let document = Document(cbor: cbor) else {
+            throw ZKPError.invalidCBORDocument
+        }
         
-        return try createChallengeRequestData(issuerAuth: issuerAuth)
+        return try createChallengeRequestData(issuerAuth: document.issuerSigned.issuerAuth)
     }
     
     public func createChallengeRequestData(issuerAuth: IssuerAuth) throws -> ChallengeRequestData {
