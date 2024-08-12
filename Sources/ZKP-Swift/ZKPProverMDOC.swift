@@ -40,6 +40,27 @@ class ZKPProverMDOC {
         return ChallengeRequestData(digest: digest, r: r)
     }
     
+    public func answerChallenge(ephemeralPublicKey: ECPublicKey, mdoc: String) throws -> String {
+        guard let data = Data(base64URLEncoded: mdoc) else {
+            throw ZKPError.notBase64Decodable
+        }
+        
+        guard let cbor = try CBOR.decode([UInt8](data)) else {
+            throw ZKPError.invalidCBOR
+        }
+        
+        guard let document = Document(cbor: cbor) else {
+            throw ZKPError.invalidCBORDocument
+        }
+        
+        let newIssuerAuth = try answerChallenge(ephemeralPublicKey: ephemeralPublicKey, issuerAuth: document.issuerSigned.issuerAuth)
+        
+        let newIssuerSigned = IssuerSigned(issuerNameSpaces: document.issuerSigned.issuerNameSpaces, issuerAuth: newIssuerAuth)
+        let newDocument = Document(docType: document.docType, issuerSigned: newIssuerSigned, deviceSigned: document.deviceSigned, errors: document.errors)
+        
+        return newDocument.toCBOR(options: .init()).asData().base64URLEncoded
+    }
+    
     public func answerChallenge(ephemeralPublicKey: ECPublicKey, issuerAuth: IssuerAuth) throws -> IssuerAuth {
         guard issuerAuth.verifyAlgorithm == .es256 else {
             throw ZKPError.unsupportedVerificationAlgorithm(issuerAuth.verifyAlgorithm)

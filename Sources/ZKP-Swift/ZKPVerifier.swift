@@ -45,6 +45,22 @@ class ZKPVerifier {
         return ourS == decodedS
     }
     
+    func verifyChallengeMDOC(mdoc: String, key: ECPrivateKey) throws -> Bool {
+        guard let data = Data(base64URLEncoded: mdoc) else {
+            throw ZKPError.notBase64Decodable
+        }
+        
+        guard let cbor = try CBOR.decode([UInt8](data)) else {
+            throw ZKPError.invalidCBOR
+        }
+        
+        guard let document = Document(cbor: cbor) else {
+            throw ZKPError.invalidCBORDocument
+        }
+        
+        return try verifyChallengeMDOC(issuerAuth: document.issuerSigned.issuerAuth, key: key)
+    }
+    
     func verifyChallengeMDOC(issuerAuth: IssuerAuth, key: ECPrivateKey) throws -> Bool {
         let signatureData = issuerAuth.signature
         let r = signatureData.subdata(in: 0 ..< signatureData.count / 2)
