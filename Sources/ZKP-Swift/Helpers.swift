@@ -16,7 +16,7 @@ public extension Data {
     }
 }
 
-public extension Data {
+extension Data {
     init?(base64URLEncoded: String) {
         var base64String = base64URLEncoded
         base64String = base64String.replacingOccurrences(of: "-", with: "+")
