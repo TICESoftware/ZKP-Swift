@@ -2,22 +2,22 @@ import CryptoKit
 import Foundation
 import SwiftECC
 
-class ZKPProverSDJWT {
+public class ZKPProverSDJWT {
     
-    let zkpGenerator: ZKPGenerator
+    public let zkpGenerator: ZKPGenerator
     
-    init(zkpGenerator: ZKPGenerator) {
+    public init(zkpGenerator: ZKPGenerator) {
         self.zkpGenerator = zkpGenerator
     }
     
-    func createChallengeRequestData(jwt: JWT) throws -> ChallengeRequestData {
+    public func createChallengeRequestData(jwt: JWT) throws -> ChallengeRequestData {
         let parsedSDJWT = try parseSDJWT(jwt: jwt)
         let digest = Data(parsedSDJWT.digest).base64URLEncoded
         let r = Data(parsedSDJWT.r).base64URLEncoded
         return ChallengeRequestData(digest: digest, r: r)
     }
     
-    func answerChallenge(ephemeralPublicKey: ECPublicKey, jwt: String) throws -> String {
+    public func answerChallenge(ephemeralPublicKey: ECPublicKey, jwt: String) throws -> String {
         let parsedSDJWT = try parseSDJWT(jwt: jwt)
         let zkpSignature = try zkpGenerator.zeroKnowledgeProofFromSignature(ephemeralPublicKey: ephemeralPublicKey, digest: parsedSDJWT.digest, signatureR: parsedSDJWT.r, signatureS: parsedSDJWT.s)
         let encodedZKPSignature = zkpSignature.base64URLEncoded()

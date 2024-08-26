@@ -5,9 +5,9 @@ import SwiftCBOR
 
 class ZKPProverMDOC {
     
-    let zkpGenerator: ZKPGenerator
+    public let zkpGenerator: ZKPGenerator
     
-    init(zkpGenerator: ZKPGenerator) {
+    public init(zkpGenerator: ZKPGenerator) {
         self.zkpGenerator = zkpGenerator
     }
     

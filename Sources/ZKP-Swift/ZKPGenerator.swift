@@ -1,12 +1,12 @@
 import BigInt
 import SwiftECC
 
-struct ZKPGenerator {
+public struct ZKPGenerator {
     
-    let issuerPublicKeyECPoint: Point
-    let domain: Domain
+    public let issuerPublicKeyECPoint: Point
+    public let domain: Domain
     
-    init(issuerPublicKey: ECPublicKey, domain: Domain = Domain.instance(curve: .EC256r1)) {
+    public init(issuerPublicKey: ECPublicKey, domain: Domain = Domain.instance(curve: .EC256r1)) {
         self.issuerPublicKeyECPoint = issuerPublicKey.w
         self.domain = domain
     }
