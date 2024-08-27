@@ -16,11 +16,20 @@ public class ZKPProverMDOC {
             throw ZKPError.notBase64Decodable
         }
         
-        guard let cbor = try CBOR.decode([UInt8](data)) else {
+        guard let cbor = try CBOR.decode([UInt8](data), options: CBOROptions()) else {
             throw ZKPError.invalidCBOR
         }
         
-        guard let document = Document(cbor: cbor) else {
+        guard case let .map(cborMap) = cbor else {
+            throw ZKPError.invalidCBOR
+        }
+        guard let documents = cborMap["documents"] else {
+            throw ZKPError.invalidCBOR
+        }
+        guard let asList = documents.asList(), let firstDocument = asList.first else {
+            throw ZKPError.invalidCBOR
+        }
+        guard let document = Document(cbor: firstDocument) else {
             throw ZKPError.invalidCBORDocument
         }
         
@@ -49,7 +58,16 @@ public class ZKPProverMDOC {
             throw ZKPError.invalidCBOR
         }
         
-        guard let document = Document(cbor: cbor) else {
+        guard case var .map(cborMap) = cbor else {
+            throw ZKPError.invalidCBOR
+        }
+        guard let documents = cborMap["documents"] else {
+            throw ZKPError.invalidCBOR
+        }
+        guard var documentsAsList = documents.asList(), let firstDocumentCbor = documentsAsList.first else {
+            throw ZKPError.invalidCBOR
+        }
+        guard let document = Document(cbor: firstDocumentCbor) else {
             throw ZKPError.invalidCBORDocument
         }
         
@@ -58,7 +76,10 @@ public class ZKPProverMDOC {
         let newIssuerSigned = IssuerSigned(issuerNameSpaces: document.issuerSigned.issuerNameSpaces, issuerAuth: newIssuerAuth)
         let newDocument = Document(docType: document.docType, issuerSigned: newIssuerSigned, deviceSigned: document.deviceSigned, errors: document.errors)
         
-        return newDocument.toCBOR(options: .init()).asData().base64URLEncoded
+        documentsAsList[0] = document.toCBOR(options: .init())
+        cborMap["documents"] = documentsAsList.toCBOR()
+        let result = cborMap.toCBOR()
+        return result.asData().base64URLEncoded
     }
     
     public func answerChallenge(ephemeralPublicKey: ECPublicKey, issuerAuth: IssuerAuth) throws -> IssuerAuth {
