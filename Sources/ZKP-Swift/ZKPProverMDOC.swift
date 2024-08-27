@@ -3,7 +3,7 @@ import MdocDataModel18013
 import SwiftECC
 import SwiftCBOR
 
-class ZKPProverMDOC {
+public class ZKPProverMDOC {
     
     public let zkpGenerator: ZKPGenerator
     
