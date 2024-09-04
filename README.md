@@ -52,7 +52,7 @@ S_{shared} &= s^{-1} \times E_{pubkey} \\
 \end{aligned}
 $$
 
-The verifier can now verify that the prover knows $a$ (or that they can find the discrete logarithm, which is assumed hard) by doing a Diffie-Hellman key exchange with the counterpart $(E_{privkey}, R)$ by calculating the following:
+The verifier can now verify that the prover knows $s$ (or that they can find the discrete logarithm, which is assumed hard) by doing a Diffie-Hellman key exchange with the counterpart $(E_{privkey}, R)$ by calculating the following:
 
 $$
 \begin{aligned}
